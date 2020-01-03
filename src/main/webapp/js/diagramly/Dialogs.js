@@ -2576,8 +2576,8 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	showName = (showName != null) ? showName : true;
 	createOnly = (createOnly != null) ? createOnly : false;
 	leftHighlight = (leftHighlight != null) ? leftHighlight : '#ebf2f9';
-	rightHighlight = (rightHighlight != null) ? rightHighlight : '#e6eff8';
-	rightHighlightBorder = (rightHighlightBorder != null) ? rightHighlightBorder : '1px solid #ccd9ea';
+	rightHighlight = (rightHighlight != null) ? rightHighlight : ((uiTheme == 'dark') ? 'transparent' : '#e6eff8');
+	rightHighlightBorder = (rightHighlightBorder != null) ? rightHighlightBorder : ((uiTheme == 'dark') ? '1px dotted rgb(235, 242, 249)' : '1px solid #ccd9ea');
 	templateFile = (templateFile != null) ? templateFile : EditorUi.templateFile;
 	
 	var outer = document.createElement('div');
@@ -2721,8 +2721,14 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			while (i0 < templates.length && (first || mxUtils.mod(i0, 30) != 0))
 			{
 				var tmp = templates[i0++];
-				addButton(tmp.url, tmp.libs, tmp.title, tmp.tooltip? tmp.tooltip : tmp.title,
+				var btn = addButton(tmp.url, tmp.libs, tmp.title, tmp.tooltip? tmp.tooltip : tmp.title,
 					tmp.select, tmp.imgUrl, tmp.info, tmp.onClick, tmp.preview, tmp.noImg, tmp.clibs);
+				
+				if (first)
+				{
+					btn.click();
+				}
+				
 				first = false;
 			}
 		}		
@@ -3015,7 +3021,11 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		elt.style.height = w + 'px';
 		elt.style.width = h + 'px';
 		
-		if (tooltip != null && tooltip.length > 0)
+		if (title != null)
+		{
+			elt.setAttribute('title', mxResources.get(title, null, title));
+		}
+		else if (tooltip != null && tooltip.length > 0)
 		{
 			elt.setAttribute('title', tooltip);
 		}
@@ -3036,7 +3046,6 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			{
 				create();
 			});
-
 		}
 		else if (!noImg && url != null && url.length > 0)
 		{
@@ -3045,6 +3054,14 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			elt.style.backgroundImage = 'url(' + png + ')';
 			elt.style.backgroundPosition = 'center center';
 			elt.style.backgroundRepeat = 'no-repeat';
+			
+			if (title != null)
+			{
+				elt.innerHTML = '<table width="100%" height="100%" style="line-height:1.3em;' + ((uiTheme == 'dark') ? '' : 'background:rgba(255,255,255,0.85);') +
+					'border:inherit;"><tr><td align="center" valign="middle"><span style="display:inline-block;padding:4px 8px 4px 8px;user-select:none;' +
+					'border-radius:3px;background:rgba(255,255,255,0.85);overflow:hidden;text-overflow:ellipsis;max-width:' + (w - 34) + 'px;">' +
+					mxResources.get(title, null, title) + '</span></td></tr></table>';
+			}
 			
 			var createIt = false;
 			
@@ -3090,8 +3107,10 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		}
 		else
 		{
-			elt.innerHTML = '<table width="100%" height="100%" style="line-height:1em;word-break: break-all;"><tr>' +
-				'<td align="center" valign="middle">' + mxResources.get(title, null, title) + '</td></tr></table>';
+			elt.innerHTML = '<table width="100%" height="100%" style="line-height:1.3em;"><tr>' +
+				'<td align="center" valign="middle"><span style="display:inline-block;padding:4px 8px 4px 8px;user-select:none;' +
+				'border-radius:3px;background:#ffffff;overflow:hidden;text-overflow:ellipsis;max-width:' + (w - 34) + 'px;">' +
+				mxResources.get(title, null, title) + '</span></td></tr></table>';
 			
 			if (select)
 			{
@@ -3117,6 +3136,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		}
 
 		div.appendChild(elt);
+		return elt;
 	};
 
 	var categories = {}, customCats = {};
@@ -3124,7 +3144,6 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	
 	// Adds local basic templates
 	categories['basic'] = [{title: 'blankDiagram', select: true}];
-	
 	var templates = categories['basic'];
 	
 	function initUi()
@@ -3164,7 +3183,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 					label = label.substring(0, 18) + '&hellip;';
 				}
 				
-				entry.style.cssText = 'display:block;cursor:pointer;padding:6px;white-space:nowrap;margin-bottom:-1px;overflow:hidden;text-overflow:ellipsis;';
+				entry.style.cssText = 'display:block;cursor:pointer;padding:6px;white-space:nowrap;margin-bottom:-1px;overflow:hidden;text-overflow:ellipsis;user-select:none;';
 				entry.setAttribute('title', label + ' (' + templateList.length + ')');
 				mxUtils.write(entry, entry.getAttribute('title'));
 				
@@ -3219,7 +3238,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 				label = label.substring(0, 18) + '&hellip;';
 			}
 			
-			entry.style.cssText = 'display:block;cursor:pointer;padding:6px;white-space:nowrap;margin-bottom:-1px;overflow:hidden;text-overflow:ellipsis;';
+			entry.style.cssText = 'display:block;cursor:pointer;padding:6px;white-space:nowrap;margin-bottom:-1px;overflow:hidden;text-overflow:ellipsis;user-select:none;';
 			entry.setAttribute('title', label + ' (' + templateList.length + ')');
 			mxUtils.write(entry, entry.getAttribute('title'));
 			
@@ -3260,7 +3279,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		}
 		
 		addTemplates();
-	}
+	};
 
 	if (!compact)
 	{
@@ -3493,12 +3512,13 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
  * Constructs a dialog for creating new files from a template URL.
  * Also used for dialog choosing where to save or export resources
  */
-var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLabel, overrideExtension,
-	allowBrowser, allowTab, helpLink, showDeviceButton, rowLimit, data, mimeType, base64Encoded, hints)
+var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLabel, overrideExtension, allowBrowser,
+	allowTab, helpLink, showDeviceButton, rowLimit, data, mimeType, base64Encoded, hints, hideDialog)
 {
 	overrideExtension = (overrideExtension != null) ? overrideExtension : true;
 	allowBrowser = (allowBrowser != null) ? allowBrowser : true;
 	rowLimit = (rowLimit != null) ? rowLimit : 4;
+	hideDialog = (hideDialog != null) ? hideDialog : true;
 
 	var div = document.createElement('div');
 	div.style.whiteSpace = 'nowrap';
@@ -3546,7 +3566,9 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 		div.appendChild(FilenameDialog.createTypeHint(editorUi, nameInput, hints));
 	}
 	
-	if (data != null && mimeType != null && mimeType.substring(0, 6) == 'image/')
+	// Disables SVG preview if no foreign object is supported
+	if (data != null && mimeType != null && (mimeType.substring(0, 6) == 'image/' &&
+		(mimeType != 'image/svg+xml' || (!mxClient.IS_IE && !mxClient.IS_IE11))))
 	{
 		nameInput.style.width = '160px';
 		var preview = null;
@@ -3920,8 +3942,12 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 		
 		if (mode == null || (title != null && title.length > 0))
 		{
-			editorUi.hideDialog();
-			createFn(title, mode);
+			if (hideDialog)
+			{
+				editorUi.hideDialog();
+			}
+			
+			createFn(title, mode, nameInput);
 		};
 	}
 	
@@ -8280,6 +8306,7 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 								label.style.cursor = 'text';
 								label.style.color = '';
 								label.setAttribute('contentEditable', 'true');
+								mxUtils.setPrefixedStyle(label.style, 'user-select', 'text');
 								label.focus();
 								document.execCommand('selectAll', false, null);
 								
@@ -9885,7 +9912,341 @@ var BtnDialog = function(editorUi, peer, btnLbl, fn)
 };
 
 /**
- * Aspect Dialog
+ * Constructs a new font dialog.
+ */
+var FontDialog = function(editorUi, curFontname, curUrl, curType, fn)
+{
+	var row, td, label;
+	
+	var table = document.createElement('table');
+	var tbody = document.createElement('tbody');
+	table.style.marginTop = '8px';
+
+	//System fonts section
+	row = document.createElement('tr');
+	
+	td = document.createElement('td');
+	td.colSpan = 2;
+	td.style.whiteSpace = 'nowrap';
+	td.style.fontSize = '10pt';
+	td.style.fontWeight = 'bold';
+	
+	var sysFontRadio = document.createElement('input');
+	sysFontRadio.style.cssText = 'margin-right:8px;margin-bottom:8px;';
+	sysFontRadio.setAttribute('value', 'sysfonts');
+	sysFontRadio.setAttribute('type', 'radio');
+	sysFontRadio.setAttribute('name', 'current-fontdialog');
+	sysFontRadio.setAttribute('id', 'fontdialog-sysfonts');
+	td.appendChild(sysFontRadio);
+	
+	label = document.createElement('label');
+	label.setAttribute('for', 'fontdialog-sysfonts');
+	mxUtils.write(label, (mxResources.get('sysFonts', null, 'System Fonts')));
+	td.appendChild(label);
+	
+	row.appendChild(td);
+	tbody.appendChild(row);
+	
+	row = document.createElement('tr');
+	
+	td = document.createElement('td');
+	td.style.whiteSpace = 'nowrap';
+	td.style.fontSize = '10pt';
+	td.style.width = '120px';
+	td.style.paddingLeft = '15px';
+	mxUtils.write(td, (mxResources.get('fontname', null, 'Font Name')) + ':');
+
+	row.appendChild(td);
+	
+	var sysFontInput = document.createElement('input');
+	
+	if (curType == 's')
+	{
+		sysFontInput.setAttribute('value', curFontname);
+	}
+	
+	sysFontInput.style.marginLeft = '4px';
+	sysFontInput.style.width = '250px';
+	sysFontInput.className = 'dlg_fontName_s';
+	
+	td = document.createElement('td');
+	td.appendChild(sysFontInput);
+	row.appendChild(td);
+	
+	tbody.appendChild(row);
+
+	//Google fonts section
+	row = document.createElement('tr');
+	
+	td = document.createElement('td');
+	td.colSpan = 2;
+	td.style.whiteSpace = 'nowrap';
+	td.style.fontSize = '10pt';
+	td.style.fontWeight = 'bold';
+	
+	var googleFontRadio = document.createElement('input');
+	googleFontRadio.style.cssText = 'margin-right:8px;margin-bottom:8px;';
+	googleFontRadio.setAttribute('value', 'googlefonts');
+	googleFontRadio.setAttribute('type', 'radio');
+	googleFontRadio.setAttribute('name', 'current-fontdialog');
+	googleFontRadio.setAttribute('id', 'fontdialog-googlefonts');
+	td.appendChild(googleFontRadio);
+	
+	label = document.createElement('label');
+	label.setAttribute('for', 'fontdialog-googlefonts');
+	mxUtils.write(label, (mxResources.get('googleFonts', null, 'Google Fonts')));
+	td.appendChild(label);
+	
+	row.appendChild(td);
+	tbody.appendChild(row);
+	
+	row = document.createElement('tr');
+	
+	td = document.createElement('td');
+	td.style.whiteSpace = 'nowrap';
+	td.style.fontSize = '10pt';
+	td.style.width = '120px';
+	td.style.paddingLeft = '15px';
+	mxUtils.write(td, (mxResources.get('fontname', null, 'Font Name')) + ':');
+
+	row.appendChild(td);
+	
+	var googleFontInput = document.createElement('input');
+
+	if (curType == 'g')
+	{
+		googleFontInput.setAttribute('value', curFontname);
+	}
+	
+	googleFontInput.style.marginLeft = '4px';
+	googleFontInput.style.width = '250px';
+	googleFontInput.className = 'dlg_fontName_g';
+	
+	td = document.createElement('td');
+	td.appendChild(googleFontInput);
+	row.appendChild(td);
+	tbody.appendChild(row);
+	
+	//Generic remote fonts section
+	row = document.createElement('tr');
+	
+	td = document.createElement('td');
+	td.colSpan = 2;
+	td.style.whiteSpace = 'nowrap';
+	td.style.fontSize = '10pt';
+	td.style.fontWeight = 'bold';
+	
+	var webFontRadio = document.createElement('input');
+	webFontRadio.style.cssText = 'margin-right:8px;margin-bottom:8px;';
+	webFontRadio.setAttribute('value', 'webfonts');
+	webFontRadio.setAttribute('type', 'radio');
+	webFontRadio.setAttribute('name', 'current-fontdialog');
+	webFontRadio.setAttribute('id', 'fontdialog-webfonts');
+	td.appendChild(webFontRadio);
+	
+	label = document.createElement('label');
+	label.setAttribute('for', 'fontdialog-webfonts');
+	mxUtils.write(label, (mxResources.get('webfonts', null, 'Web Fonts')));
+	td.appendChild(label);
+	
+	row.appendChild(td);
+	tbody.appendChild(row);
+	
+	row = document.createElement('tr');
+	
+	td = document.createElement('td');
+	td.style.whiteSpace = 'nowrap';
+	td.style.fontSize = '10pt';
+	td.style.width = '120px';
+	td.style.paddingLeft = '15px';
+	mxUtils.write(td, (mxResources.get('fontname', null, 'Font Name')) + ':');
+
+	row.appendChild(td);
+	
+	var webFontInput = document.createElement('input');
+
+	if (curType == 'w')
+	{
+		webFontInput.setAttribute('value', curFontname);
+	}
+	
+	webFontInput.style.marginLeft = '4px';
+	webFontInput.style.width = '250px';
+	webFontInput.className = 'dlg_fontName_w';
+	
+	td = document.createElement('td');
+	td.appendChild(webFontInput);
+	row.appendChild(td);
+	tbody.appendChild(row);
+	
+	row = document.createElement('tr');
+	
+	td = document.createElement('td');
+	td.style.whiteSpace = 'nowrap';
+	td.style.fontSize = '10pt';
+	td.style.width = '120px';
+	td.style.paddingLeft = '15px';
+	mxUtils.write(td, (mxResources.get('fontUrl', null, 'Font URL')) + ':');
+
+	row.appendChild(td);
+	
+	var webFontUrlInput = document.createElement('input');
+	webFontUrlInput.setAttribute('value', curUrl || '');
+	webFontUrlInput.style.marginLeft = '4px';
+	webFontUrlInput.style.width = '250px';
+	webFontUrlInput.className = 'dlg_fontUrl';
+	
+	td = document.createElement('td');
+	td.appendChild(webFontUrlInput);
+	row.appendChild(td);
+	tbody.appendChild(row);
+	
+	this.init = function()
+	{
+		var input = sysFontInput;
+		
+		if (curType == 'g')
+		{
+			input = googleFontInput;
+		}
+		else if (curType == 'w')
+		{
+			input = webFontInput;
+		}
+		
+		input.focus();
+		
+		if (mxClient.IS_GC || mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
+		{
+			input.select();
+		}
+		else
+		{
+			document.execCommand('selectAll', false, null);
+		}
+	};
+
+	row = document.createElement('tr');
+	td = document.createElement('td');
+	td.colSpan = 2;
+	td.style.paddingTop = '20px';
+	td.style.whiteSpace = 'nowrap';
+	td.setAttribute('align', 'right');
+	
+	var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
+	{
+		editorUi.hideDialog();
+	});
+	cancelBtn.className = 'geBtn';
+	
+	if (editorUi.editor.cancelFirst)
+	{
+		td.appendChild(cancelBtn);
+	}
+	
+	function validateFn(fontName, fontUrl, type)
+	{
+		var urlPattern = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
+		
+		if (fontName == null || fontName.length == 0)
+		{
+			table.querySelector('.dlg_fontName_' + type).style.border = '1px solid red';
+			return false;
+		}
+		
+		if (type == 'w' && !urlPattern.test(fontUrl))
+		{
+			table.querySelector('.dlg_fontUrl').style.border = '1px solid red';
+			return false;
+		}
+		
+		return true;
+	};
+	
+	var okBtn = mxUtils.button(mxResources.get('apply'), function()
+	{
+		var fontName, fontUrl, type;
+		
+		if (sysFontRadio.checked)
+		{
+			fontName = sysFontInput.value;
+			type = 's';
+		}
+		else if (googleFontRadio.checked)
+		{
+			fontName = googleFontInput.value;
+			fontUrl = Editor.GOOGLE_FONTS + encodeURIComponent(fontName).replace(/%20/g, '+');
+			type = 'g';
+		}
+		else if (webFontRadio.checked)
+		{
+			fontName = webFontInput.value;
+			fontUrl = webFontUrlInput.value;
+			type = 'w';
+		}
+		
+		if (validateFn(fontName, fontUrl, type))
+		{
+			fn(fontName, fontUrl, type);
+			editorUi.hideDialog();
+		}
+	});
+	okBtn.className = 'geBtn gePrimaryBtn';
+
+	function enterSubmit(e)
+	{
+		this.style.border = '';
+		
+		if (e.keyCode == 13)
+		{
+			okBtn.click();
+		}
+	};
+	
+	mxEvent.addListener(sysFontInput, 'keypress', enterSubmit);
+	mxEvent.addListener(googleFontInput, 'keypress', enterSubmit);
+	mxEvent.addListener(webFontInput, 'keypress', enterSubmit);
+	mxEvent.addListener(webFontUrlInput, 'keypress', enterSubmit);
+	
+	mxEvent.addListener(sysFontInput, 'focus', function()
+	{
+		sysFontRadio.setAttribute('checked', 'checked');
+		sysFontRadio.checked = true;
+	});
+	
+	mxEvent.addListener(googleFontInput, 'focus', function()
+	{
+		googleFontRadio.setAttribute('checked', 'checked');
+		googleFontRadio.checked = true;
+	});
+
+	mxEvent.addListener(webFontInput, 'focus', function()
+	{
+		webFontRadio.setAttribute('checked', 'checked');
+		webFontRadio.checked = true;
+	});
+
+	mxEvent.addListener(webFontUrlInput, 'focus', function()
+	{
+		webFontRadio.setAttribute('checked', 'checked');
+		webFontRadio.checked = true;
+	});
+
+	td.appendChild(okBtn);
+	
+	if (!editorUi.editor.cancelFirst)
+	{
+		td.appendChild(cancelBtn);
+	}
+
+	row.appendChild(td);
+	tbody.appendChild(row);
+	table.appendChild(tbody);
+	
+	this.container = table;
+};
+
+/* Aspect Dialog
  * @module drawio/aspect-dialog
  */
 function AspectDialog(editorUi, pageId, layerIds, okFn, cancelFn)
